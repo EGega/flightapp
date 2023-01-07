@@ -50,5 +50,6 @@ class StaffFlightSerializer(serializers.ModelSerializer):
             "departure_city",
             "arrival_city",
             "date_of_departure",
-            "etd"
+            "etd",
+            "reservation",
         )
