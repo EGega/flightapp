@@ -52,3 +52,30 @@ class FlightTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'reservation')
         self.assertEqual(len(response.data), 1)
+
+    def test_flight_create_as_non_auth_user(self):
+        request = self.factory.post('/flight/flights/')
+        response = FlightView.as_view({'post': 'create'})(request)
+        self.assertEqual(response.status_code, 401)
+    
+    def test_flight_create_as_auth_user(self):
+      request = self.factory.post('/flight/flights/', HTTP_AUTHORIZATION=f'Token {self.token}')
+      response = FlightView.as_view({'post': 'create'})(request)
+      self.assertEqual(response.status_code, 403)
+
+    def test_flight_create_as_staff_user(self):
+      data = {
+            "flight_number":"123ABC",
+            "operation_airlines":"THY",
+            "departure_city":"Adana",
+            "arrival_city":"Ankara",
+            "date_of_departure":"2022-01-08",
+            "etd":"16:35:00",
+        }
+      self.user.is_staff = True
+      self.user.save()
+      request = self.factory.post('/flight/flights/', data, HTTP_AUTHORIZATION=f'Token {self.token}')
+      response = FlightView.as_view({'post': 'create'})(request)
+      self.assertEqual(response.status_code, 201)
+      
+      
